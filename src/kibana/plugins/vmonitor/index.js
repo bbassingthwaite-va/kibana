@@ -10,7 +10,6 @@ define(function(require) {
     require('components/typeahead/typeahead');
     require('components/clipboard/clipboard');
 
-
     require('plugins/vmonitor/services/vmonitor');
     require('plugins/dashboard/directives/grid');
     require('plugins/dashboard/directives/panel');
@@ -48,99 +47,6 @@ define(function(require) {
         });
 
 
-
-    function listCategories(es, index) {
-        var body = {
-            "query": {
-                "query_string": {
-                    "query": "*"
-                }
-            },
-            "aggs": {
-                "categories": {
-                    "terms": {
-                        "field": "category",
-                        "size": 50
-                    }
-                }
-            }
-        }
-        return es.search({
-            index: index,
-            type: 'tick',
-            body: body
-        });
-    }
-
-
-    function listSubCategories(es, index, category) {
-        var body = {
-                    "query": {
-                        "query_string": {
-                            "query": "category:" + category
-                        }
-                    },
-                    "aggs": {
-                        "sub_categories": {
-                            "terms": {
-                                "field": "sub_category",
-                                "size": 50
-                            }
-                        }
-                    }
-                }
-
-        return es.search({
-            index: index,
-            body: body
-        });
-    }
-
-    function buildVMonitorChartId(category, sub_category) {
-        return 'vMonitor - ' + category + ' ' + sub_category
-    }
-
-    function createVMonitorGraph(es, notify, index, category, sub_category) {
-        var chartId = buildVMonitorChartId(category, sub_category)
-        var query = "category:" + category +" AND sub_category:" + sub_category
-        body = {
-           "title": chartId,
-           "visState": JSON.stringify({"type":"line","aggs":[{"type":"count","schema":"metric","params":{}},{"type":"date_histogram","schema":"segment","params":{"field":"timestamp","interval":"hour","min_doc_count":1,"extended_bounds":{}}},{"type":"terms","schema":"group","params":{"field":"action","size":10,"order":"desc"}}]}),
-           "description": "",
-           "kibanaSavedObjectMeta": {
-               "searchSourceJSON": JSON.stringify({"index":"[tick-repcore-prod-]YYYY.MM.DD","query":{"query_string":{"query":query}}})
-           }
-       }
-        r = es.index({
-            index: '.kibana',
-            type: 'visualization',
-            id: chartId,
-            body: body
-        }).then(function(r) {
-            console.log(r);
-        }).catch(notify.fatal)
-    }
-
-    function generateVMonitorGraphs($q, es, notify, index, category, sub_category) {
-
-        var chartId = buildVMonitorChartId(category, sub_category)
-        var deferred = $q.defer();
-
-        r = es.get({
-            index: '.kibana',
-            type: 'visualization',
-            id: chartId
-        }).then(function(r) {
-            deferred.resolve({category: category, sub_category:sub_category, chartId:chartId})
-
-        }).catch(function(r) {
-            createVMonitorGraph(es, notify, index, category, sub_category)
-            deferred.resolve({category: category, sub_category:sub_category, chartId:chartId})
-        })
-        return deferred.promise;
-    }
-
-
     app.directive('vmonitorApp', function(VMonitorDashboard, $q, es, Notifier, courier, savedVisualizations, AppState, timefilter, kbnUrl, Promise) {
         return {
             controller: function($scope, $route, $routeParams, $location, configFile) {
@@ -157,10 +63,6 @@ define(function(require) {
                 VMonitorDashboard.getCategories($scope.index).then(function(categories) {
                     $scope.categories = categories
                 })
-
-//                VMonitorDashboard.getVisualizationsForCategory($scope.index, 'category').then(function(r) {
-//                    console.log(r);
-//                });
 
                 $scope.toggleCategory = function(category) {
                     $scope.isLoading = true;
@@ -299,7 +201,6 @@ define(function(require) {
             }
         };
     });
-
 
 
     var apps = require('registry/apps');

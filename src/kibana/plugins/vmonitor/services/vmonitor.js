@@ -156,7 +156,7 @@ define(function(require) {
                 "description": "",
                 "kibanaSavedObjectMeta": {
                     "searchSourceJSON": JSON.stringify({
-                        "index": "[tick-repcore-prod-]YYYY.MM.DD",
+                        "index": "[tick-repcore-prod-]YYYY.MM.DD", // TODO - determine this from global config
                         "query": {
                             "query_string": {
                                 "query": query
@@ -261,9 +261,7 @@ define(function(require) {
 
 }
 
-
-// Used only by the savedDashboards service, usually no reason to change this
-module.factory('VMonitorDashboard', function($q, es, Notifier) {
-    return new VMonitorDashboard($q, es, Notifier);
-});
+    module.factory('VMonitorDashboard', function($q, es, Notifier) {
+        return new VMonitorDashboard($q, es, Notifier);
+    });
 });

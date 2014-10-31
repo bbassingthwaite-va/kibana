@@ -9,7 +9,6 @@ define(function (require) {
   app.directive('dashboardGrid', function ($compile, Notifier) {
     return {
       restrict: 'E',
-      require: '^dashboardApp', // must inherit from the dashboardApp
       link: function ($scope, $el) {
         var notify = new Notifier();
         var $container = $el;

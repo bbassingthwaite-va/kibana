@@ -66,7 +66,13 @@ define(function (require) {
           }
 
           // The fields to loop over
-          row._fields = row._fields || _.keys(row._source).concat(config.get('metaFields')).sort();
+          if (!row._fields) {
+            row._fields = _.union(
+              _.keys(row._source),
+              config.get('metaFields')
+            );
+            row._fields.sort();
+          }
           row._mode = 'table';
 
           // empty the details and rebuild it
@@ -75,8 +81,13 @@ define(function (require) {
           $detailsScope.row = row;
           $detailsScope.showFilters = function (mapping) {
             var validTypes = ['string', 'number', 'date', 'ip'];
-            if (!mapping.indexed) return false;
+            if (!mapping || !mapping.indexed) return false;
             return _.contains(validTypes, mapping.type);
+          };
+
+          $detailsScope.showArrayInObjectsWarning = function (row, field) {
+            var value = row._source[field];
+            return _.isArray(value) && typeof value[0] === 'object';
           };
 
           $compile($detailsTr)($detailsScope);

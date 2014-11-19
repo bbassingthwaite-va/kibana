@@ -102,29 +102,28 @@ define(function (require) {
      * @return {HTMLElement} Legend
      */
     Legend.prototype.render = function () {
+      var self = this;
       var visEl = d3.select(this.el);
       var legendDiv = visEl.select('.' + this._attr.legendClass);
       var items = this.labels;
-      var headerIcon = visEl.select('.legend-toggle');
-      var self = this;
-
       this.header(legendDiv, this);
       this.list(legendDiv, items, this);
+
+      var headerIcon = visEl.select('.legend-toggle');
 
       // toggle
       headerIcon
       .on('click', function legendClick() {
         if (self._attr.isOpen) {
           // close legend
-          visEl.select('ul.legend-ul')
-            .classed('hidden', true);
+          visEl.select('ul.legend-ul').classed('hidden', true);
           self._attr.isOpen = false;
+
           // need to add reference to resize function on toggle
           self.vis.resize();
         } else {
           // open legend
-          visEl.select('ul.legend-ul')
-            .classed('hidden', false);
+          visEl.select('ul.legend-ul').classed('hidden', false);
           self._attr.isOpen = true;
 
           // need to add reference to resize function on toggle
@@ -141,12 +140,11 @@ define(function (require) {
         visEl.selectAll(liClass).style('opacity', self._attr.focusOpacity);
       })
       .on('mouseout', function () {
-
         /*
          * The default opacity of elements in charts may be modified by the
          * chart constructor, and so may differ from that of the legend
          */
-        visEl.select('.chart')
+        visEl.selectAll('.chart')
         .selectAll('.color')
         .style('opacity', self._attr.defaultOpacity);
 

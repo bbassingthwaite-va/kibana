@@ -25,13 +25,11 @@
 // FontAwesome fills for glyphicons in bootstrap components
 @import "./_glyphicons.less";
 
-// Our CSS spinner
 @import "./_spinner.less";
-
-// Pagniation directive
 @import "./_pagination.less";
 
 // custom control style
+@import "./_input.less";
 @import "./_navbar.less";
 @import "./_sidebar.less";
 @import "./_truncate.less";
@@ -117,6 +115,10 @@ ul.navbar-inline li {
 .top-fixed {
   position:fixed;
   bottom:0px;
+}
+
+.checkbox input[type="checkbox"] {
+  float: none;
 }
 
 notifications {
@@ -378,8 +380,10 @@ button[disabled] {
 }
 
 input.ng-dirty.ng-invalid,
+textarea.ng-dirty.ng-invalid,
 select.ng-dirty.ng-invalid,
 form:not(.hide-errors) input.ng-invalid,
+form:not(.hide-errors) textarea.ng-invalid,
 form:not(.hide-errors) select.ng-invalid {
   border-color: @state-danger-bg !important;
 }

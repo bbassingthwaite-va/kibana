@@ -4,7 +4,7 @@ define(function (require) {
 
     var Legend = Private(require('components/vislib/lib/legend'));
     var Dispatch = Private(require('components/vislib/lib/dispatch'));
-    var Tooltip = Private(require('components/vislib/lib/tooltip'));
+    var Tooltip = Private(require('components/vislib/components/tooltip/tooltip'));
 
     /**
      * The Base Class for all visualizations.
@@ -24,13 +24,15 @@ define(function (require) {
       this.chartEl = el;
       this.chartData = chartData;
 
-      var events = this.events = new Dispatch(handler, chartData);
+      var events = this.events = new Dispatch(handler);
 
       if (handler._attr.addTooltip) {
         var $el = this.handler.el;
         var formatter = this.handler.data.get('tooltipFormatter');
 
+        // Add tooltip
         this.tooltip = new Tooltip($el, formatter, events);
+
       }
 
       this._attr = _.defaults(handler._attr || {}, {});

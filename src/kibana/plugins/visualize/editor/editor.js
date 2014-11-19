@@ -69,10 +69,12 @@ define(function (require) {
 
     var $state = (function initState() {
       var savedVisState = vis.getState();
-
-      var $state = new AppState({
+      var stateDefaults = {
+        query: searchSource.get('query') || {query_string: {query: '*'}},
         vis: savedVisState
-      });
+      };
+
+      var $state = new AppState(stateDefaults);
 
       if (!angular.equals($state.vis, savedVisState)) {
         vis.setState($state.vis);
@@ -107,7 +109,7 @@ define(function (require) {
       }
 
       // track state of editable vis vs. "actual" vis
-      $scope.stageEditableVis = transferVisState(editableVis, vis);
+      $scope.stageEditableVis = transferVisState(editableVis, vis, true);
       $scope.resetEditableVis = transferVisState(vis, editableVis);
       $scope.$watch(function () {
         return editableVis.getState();
@@ -119,10 +121,13 @@ define(function (require) {
         timefilter.enabled = !!timeField;
       });
 
-      $scope.$listen($state, 'fetch_with_changes', function () {
-
-        vis.setState($state.vis);
-        editableVis.setState($state.vis);
+      $scope.$listen($state, 'fetch_with_changes', function (keys) {
+        if (_.contains(keys, 'vis')) {
+          // only update when we need to, otherwise colors change and we
+          // risk loosing an in-progress result
+          vis.setState($state.vis);
+          editableVis.setState($state.vis);
+        }
 
         // we use state to track query, must write before we fetch
         if ($state.query) {
@@ -153,7 +158,7 @@ define(function (require) {
     };
 
     $scope.startOver = function () {
-      kbnUrl.change('/visualize', {}, true);
+      kbnUrl.change('/visualize', {});
     };
 
     $scope.doSave = function () {
@@ -205,12 +210,14 @@ define(function (require) {
       $scope.linked = false;
     };
 
-    function transferVisState(fromVis, toVis) {
+    function transferVisState(fromVis, toVis, fetch) {
       return function () {
         toVis.setState(fromVis.getState());
         editableVis.dirty = false;
         $state.vis = vis.getState();
         $state.save();
+
+        if (fetch) $scope.fetch();
       };
     }
 
